@@ -1,4 +1,4 @@
-# basic-ass-site
+# .profile
 
 Personal website of Ishaan Dubey ([@Beasr1](https://github.com/Beasr1)). Themed as a PGP-signed
 certificate. Built with [Zola](https://www.getzola.org) (a single-binary static site generator
@@ -54,9 +54,9 @@ on the site only. Add `draft = true` to keep it unpublished.
 
 ## Deploy (GitHub Pages)
 
-1. Push this repo to `github.com/Beasr1/basic-ass-site` on branch `main`.
+1. Push this repo to `github.com/Beasr1/.profile` on branch `main`.
 2. Repo **Settings → Pages → Source: GitHub Actions**.
-3. Every push to `main` builds and publishes to `https://beasr1.github.io/basic-ass-site/`.
+3. Every push to `main` builds and publishes to `https://beasr1.github.io/.profile/` (until a custom domain is set).
 
 For your own domain later: set `base_url` in `config.toml`, add the domain under Settings → Pages,
 and point DNS at GitHub. Or copy `public/` to any server (nginx, etc.).
