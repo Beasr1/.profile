@@ -1,0 +1,13 @@
+# Cloudflare Workers config: serves the Zola build (public/) as static files, no server code.
+# Deployed by .github/workflows/deploy.yml with `wrangler deploy`.
+name = "beasr"
+compatibility_date = "2026-10-01"
+
+# attach the domain (Cloudflare creates the DNS record and certificate automatically)
+routes = [
+  { pattern = "beasr.dev", custom_domain = true },
+]
+
+[assets]
+directory = "./public"
+not_found_handling = "404-page"

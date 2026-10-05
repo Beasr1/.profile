@@ -21,7 +21,8 @@ static/
   style.css              the whole theme
   keys.js                keyboard shortcuts (h, b, g, d, j, k, ?); optional, site works without it
 scripts/sign.py          re-signs the home page (see below)
-.github/workflows/       builds and deploys to GitHub Pages on push to main
+.github/workflows/       builds and deploys to Cloudflare on push to main
+wrangler.toml            Cloudflare config (static assets + beasr.dev domain)
 ```
 
 ## Run it
@@ -52,14 +53,20 @@ Markdown here.
 It shows up at `/blog/my-post/` and in the blog list. There's no RSS feed on purpose: posts live
 on the site only. Add `draft = true` to keep it unpublished.
 
-## Deploy (GitHub Pages)
+## Deploy (Cloudflare)
 
-1. Push this repo to `github.com/Beasr1/.profile` on branch `main`.
-2. Repo **Settings → Pages → Source: GitHub Actions**.
-3. Every push to `main` builds and publishes to `https://beasr1.github.io/.profile/` (until a custom domain is set).
+Live at **https://beasr.dev**. Every push to `main` runs `.github/workflows/deploy.yml`:
+`make build`, then `wrangler deploy`, which uploads `public/` as a Cloudflare Worker with static
+assets (config in `wrangler.toml`) and attaches the `beasr.dev` domain.
 
-For your own domain later: set `base_url` in `config.toml`, add the domain under Settings → Pages,
-and point DNS at GitHub. Or copy `public/` to any server (nginx, etc.).
+Needs two repo secrets (Settings → Secrets and variables → Actions):
+
+- `CLOUDFLARE_API_TOKEN`: Cloudflare → My Profile → API Tokens → "Edit Cloudflare Workers"
+  template, limited to this account and the `beasr.dev` zone.
+- `CLOUDFLARE_ACCOUNT_ID`: shown on the Cloudflare dashboard (Account home, right sidebar).
+
+To move to another domain: change `base_url` in `config.toml` and the route in `wrangler.toml`.
+The output is plain files, so `public/` can also be copied to any server (nginx, etc.).
 
 ## The signature is real (ish)
 

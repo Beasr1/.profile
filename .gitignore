@@ -9,3 +9,6 @@ public/
 
 # private Claude notes (CLAUDE.md itself is committed)
 CLAUDE.local.md
+
+# wrangler local state
+.wrangler/
