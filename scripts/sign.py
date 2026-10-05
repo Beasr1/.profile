@@ -84,6 +84,11 @@ def encode():
     page, n = re.subn(r'(<div class="out sz">).*?(</div>)', lambda m: m.group(1) + copy + m.group(2), page, flags=re.S)
     assert n == 1, "sizer block not found"
 
+    # the public key, embedded for the browser console easter egg (static/keys.js)
+    signers = html.escape(SIGNERS.read_text().strip(), quote=True)
+    page, n = re.subn(r'data-allowed-signers="[^"]*"', f'data-allowed-signers="{signers}"', page)
+    assert n == 1, "data-allowed-signers not found"
+
     HOME.write_text(page)
     BIO.write_bytes(msg)
     print(f"encoded {len(msg)} bytes, sha256 {digest}, checksum {checksum} -> {BIO.relative_to(ROOT)}")

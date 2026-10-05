@@ -84,6 +84,20 @@
     if (box) box.checked = true;
   }
 
+  // Console easter egg: the signed bio's raw material, nothing more (no instructions on purpose).
+  const sigEl = document.querySelector(".sshsig");
+  const box = document.querySelector("[data-allowed-signers]");
+  if (sigEl && box) {
+    const copy = sigEl.cloneNode(true); // keep the armor's line breaks (it's hidden, so no innerText)
+    copy.querySelectorAll("br").forEach((br) => br.replaceWith("\n"));
+    window.signature = {
+      message: [...document.querySelectorAll(".screen-decode .out p")].map((p) => p.textContent.trim()).join(" "),
+      signature: copy.textContent.trim(),
+      allowedSigners: box.dataset.allowedSigners,
+    };
+    console.log("%c✓ signed", "color:#4ade80;font:700 13px monospace", window.signature);
+  }
+
   // enable the terminal's close animation only once the page has settled (see style.css)
   const ready = () => requestAnimationFrame(() => document.documentElement.classList.add("ready"));
   if (document.readyState === "complete") ready();
