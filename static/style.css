@@ -241,71 +241,126 @@ img {
   border-top: 1px dashed var(--line);
 }
 
-/* decode toggle: a little terminal session, replays every time it opens */
+/* decode toggle: a hidden checkbox + label (no JS). The terminal spawns over the base64 at
+   exactly its size, decodes it, and on re-encode prints the same block back in the same
+   spot, then fades out, leaving the real base64 underneath. Output scrolls like a terminal. */
 
-.decode {
-  margin-top: 1rem;
-  font-size: 0.85rem;
+.decode-toggle {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
 }
 
-.decode summary {
+.decode-btn {
+  display: block;
   width: fit-content;
+  margin-top: 1rem;
   color: var(--accent);
+  font-size: 0.85rem;
   cursor: pointer;
 }
 
-.decode summary::before {
+.decode-btn::before {
   content: "$ base64 -d  ";
   color: var(--muted);
 }
 
-.decode[open] summary::before {
+.decode-toggle:checked ~ .decode-btn::before {
   content: "$ base64  ";
 }
 
-.decode .opened,
-.decode[open] .closed {
+.decode-btn .opened,
+.decode-toggle:checked ~ .decode-btn .closed {
   display: none;
 }
 
-.decode[open] .opened {
+.decode-toggle:checked ~ .decode-btn .opened {
   display: inline;
 }
 
-/* the encoded block collapses while decoded, and comes back on re-encode */
-.signature > .armor {
-  max-height: 20rem;
+.decode-toggle:focus-visible ~ .decode-btn {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* base64 and terminal share one grid cell; the base64 sets the size */
+.stack {
+  --bar-h: 2rem;
+  display: grid;
+  margin-inline: -1rem;
+  container-type: inline-size; /* lets the base64 size itself to this box's width */
+}
+
+/* base64 (and the terminal's re-encoded copy) shrink so each 64-char line always fits on one
+   row at any width: box width minus 1rem padding each side and the 1px borders, over ~39em
+   (64 monospace chars at 0.6em each, plus slack). Same rule for both keeps the hand-off aligned. */
+.stack > .armor,
+.session .enc {
+  font-size: min(0.8rem, calc((100cqi - 2rem - 2px) / 39));
+}
+
+.stack > * {
+  grid-area: 1 / 1;
+}
+
+/* Invisible copy of the bio, styled like the terminal's text. While decoded it makes the box at
+   least tall enough for the whole bio (matters on phones, where the base64 is short); while
+   closed it has no height, so the closed layout is just the base64. */
+.sizer {
+  visibility: hidden;
+  height: 0;
   overflow: hidden;
-  transition: max-height 0.5s ease, opacity 0.3s ease, filter 0.3s ease;
+  padding: 0 1rem;
+  border-inline: 1px solid transparent;
+  font-family: var(--crt);
+  font-size: clamp(0.9rem, 100cqi / 36.7, 1.2rem);
+  line-height: 1.35;
 }
 
-.signature:has(.decode[open]) > .armor {
-  max-height: 0;
+.decode-toggle:checked ~ .stack > .sizer {
+  height: auto;
+  padding-block: calc(var(--bar-h) + 1px + 0.35rem) 1rem;
+}
+
+.sizer .sz-prompt {
+  margin: 0.35rem 0 0;
+}
+
+/* same box as the terminal's text area, so the re-encoded text lands exactly on it */
+.stack > .armor {
+  padding: var(--bar-h) 1rem 1rem;
+  border: 1px solid transparent;
+}
+
+.decode-toggle:checked ~ .stack > .armor {
   opacity: 0;
-  filter: blur(3px);
 }
 
-.signature:has(.decode[open]) .decode {
-  margin-top: 0;
-}
-
+/* the terminal window */
 .term {
   --t-bg: #070a08;
   --t-fg: #a7f3c0;
   --t-green: #4ade80;
   --t-dim: #6f8a7a;
   position: relative;
-  margin-top: 0.75rem;
-  padding: 0 1rem 1rem;
+  z-index: 1;
+  display: none;
+  flex-direction: column;
+  contain: size; /* never grows the page: it takes the base64's size */
   overflow: hidden;
   background: var(--t-bg);
   border: 1px solid #1d2b23;
   border-radius: 6px;
   color: var(--t-fg);
   font-family: var(--crt);
-  font-size: 1.2rem;
+  /* scales with the box (1.2rem on a full-width card), so the bio fits on narrower screens */
+  font-size: clamp(0.9rem, 100cqi / 36.7, 1.2rem);
   line-height: 1.35;
   text-shadow: 0 0 6px rgba(74, 222, 128, 0.35);
+}
+
+.decode-toggle:checked ~ .stack > .term {
+  display: flex;
 }
 
 /* CRT scanlines */
@@ -317,7 +372,48 @@ img {
   background: repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0, 0, 0, 0.28) 2px 3px);
 }
 
-.term p {
+.term-bar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  height: var(--bar-h);
+  margin: 0;
+  padding: 0 1rem;
+  border-bottom: 1px solid #1d2b23;
+  color: var(--t-dim);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  text-shadow: none;
+}
+
+.term-bar .dots {
+  margin-right: 0.75rem;
+  letter-spacing: 0.15em;
+}
+
+/* the screen keeps the newest line at the bottom; older lines scroll up, and you can
+   scroll back to read them (handy on phones, where the window is smaller) */
+.screen {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column-reverse;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 1rem 1rem;
+  scrollbar-color: #1f5c38 transparent;
+  scrollbar-width: thin;
+}
+
+.screen .fill {
+  flex: 1 1 0;
+}
+
+.session {
+  flex: none;
+}
+
+.session p {
   margin: 0.35rem 0 0;
 }
 
@@ -331,21 +427,6 @@ img {
 
 .term .ok {
   color: var(--t-green);
-}
-
-.term-bar {
-  margin: 0 -1rem 0.5rem !important;
-  padding: 0.35rem 1rem;
-  border-bottom: 1px solid #1d2b23;
-  color: var(--t-dim);
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  text-shadow: none;
-}
-
-.term-bar .dots {
-  margin-right: 0.75rem;
-  letter-spacing: 0.15em;
 }
 
 .cmd {
@@ -376,47 +457,166 @@ img {
   box-shadow: 0 0 8px var(--t-green);
 }
 
+/* re-encode output: same font, size and line height as the real base64 */
+.session .enc {
+  margin: 0.6rem 0 0;
+  overflow-wrap: anywhere;
+  color: var(--t-fg);
+  font-family: var(--mono);
+  line-height: 1.6;
+}
+
+/* the real SSH signature, printed by the terminal */
+.session .sshsig {
+  margin: 0.5rem 0 0;
+  overflow-wrap: anywhere;
+  color: var(--t-dim);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  text-shadow: none;
+}
+
+.session .s3 {
+  color: var(--t-green);
+}
+
+/* one session: decode output stays, re-encode continues on the next prompt */
+.screen-encode {
+  display: none;
+}
+
+.decode-toggle:not(:checked) ~ .stack .screen-encode {
+  display: block;
+}
+
+.decode-toggle:not(:checked) ~ .stack .screen-decode .prompt {
+  display: none;
+}
+
 @media (prefers-reduced-motion: no-preference) {
-  .decode[open] .cmd {
+  /* closing: stay up while re-encoding (~2.7s), then fade, leaving the identical base64 */
+  .stack > .term {
+    opacity: 0;
+  }
+
+  /* the box grows / shrinks smoothly with the sizer (Chrome, Edge; others snap) */
+  .ready .stack {
+    interpolate-size: allow-keywords;
+  }
+
+  .ready .stack > .sizer {
+    transition: height 0.3s ease, padding 0.3s ease;
+  }
+
+  /* only after load (keys.js adds .ready): otherwise a cold first load can "close" the
+     terminal while styles arrive and play this exit, flashing it on screen */
+  .ready .stack > .term {
+    transition: opacity 0.5s ease 2.7s, display 3.2s allow-discrete;
+  }
+
+  .ready .stack > .armor {
+    transition: opacity 0.5s ease 2.7s;
+  }
+
+  /* opening: CRT power-on over the base64 */
+  .decode-toggle:checked ~ .stack > .term {
+    opacity: 1;
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.4s ease, opacity 0.4s ease, display 0.4s allow-discrete;
+  }
+
+  .decode-toggle:checked ~ .stack > .armor {
+    transition: opacity 0.2s ease 0.25s;
+  }
+
+  @starting-style {
+    .decode-toggle:checked ~ .stack > .term {
+      transform: scaleY(0.02);
+      filter: brightness(3);
+      opacity: 0;
+    }
+  }
+
+  /* lines take no space until they "print", so the screen scrolls as they appear */
+  .decode-toggle:checked ~ .stack .screen-decode .log,
+  .decode-toggle:checked ~ .stack .screen-decode .step,
+  .decode-toggle:checked ~ .stack .screen-decode .prompt,
+  .decode-toggle:not(:checked) ~ .stack .screen-encode .log {
+    max-height: 0;
+    margin-top: 0;
+    overflow: hidden;
+  }
+
+  .decode-toggle:checked ~ .stack .screen-decode > .cmd:first-child,
+  .decode-toggle:not(:checked) ~ .stack .screen-encode .cmd {
     width: 0;
     overflow: hidden;
     white-space: nowrap;
-    animation: type 0.9s steps(31, end) forwards;
   }
 
-  .decode[open] .log,
-  .decode[open] .prompt {
-    opacity: 0;
-    animation: appear 0.01s forwards;
+  /* decode timeline (each line has its own full timing) */
+  .decode-toggle:checked ~ .stack .screen-decode > .cmd:first-child { animation: type 0.9s steps(29, end) 0.4s forwards; }
+  .decode-toggle:checked ~ .stack .screen-decode .l1 { animation: line 0.01s 1.5s forwards; }
+  .decode-toggle:checked ~ .stack .screen-decode .l2 { animation: line 0.01s 1.9s forwards; }
+  .decode-toggle:checked ~ .stack .screen-decode .l3 { animation: line 0.01s 2.3s forwards; }
+  .decode-toggle:checked ~ .stack .screen-decode .l4 { animation: line 0.01s 4.6s forwards; }
+
+  .decode-toggle:checked ~ .stack .screen-decode .out {
+    max-height: 0;
+    overflow: hidden;
+    animation: grow 2.4s steps(40, end) 4.8s forwards;
   }
 
-  .decode[open] .l1 { animation-delay: 1.1s; }
-  .decode[open] .l2 { animation-delay: 1.5s; }
-  .decode[open] .l3 { animation-delay: 1.9s; }
-  .decode[open] .l4 { animation-delay: 2.3s; }
+  /* the real verification comes first: show the signature, run ssh-keygen, get the verdict */
+  .decode-toggle:checked ~ .stack .screen-decode .s1 { animation: line 0.01s 2.7s forwards; }
 
-  .decode[open] .out {
-    clip-path: inset(0 0 100% 0);
-    animation: print 2.2s steps(22, end) 2.5s forwards;
+  .decode-toggle:checked ~ .stack .sshsig {
+    max-height: 0;
+    overflow: hidden;
+    animation: grow-sig 0.6s steps(10, end) 2.9s forwards;
   }
 
-  .decode[open] .prompt { animation-delay: 4.8s; }
+  .decode-toggle:checked ~ .stack .screen-decode .s2 { animation: line 0.01s 3.6s forwards; }
+  .decode-toggle:checked ~ .stack .screen-decode .s3 { animation: line 0.01s 4.2s forwards; }
+  .decode-toggle:checked ~ .stack .screen-decode .prompt { animation: line 0.01s 6.2s forwards; }
+
+  /* re-encode timeline (starts 0.3s in, after keys.js glides the screen back down) */
+  .decode-toggle:not(:checked) ~ .stack .screen-encode .cmd { animation: type-enc 0.5s steps(28, end) 0.3s forwards; }
+  .decode-toggle:not(:checked) ~ .stack .screen-encode .log { animation: line 0.01s 0.9s forwards; }
+
+  .decode-toggle:not(:checked) ~ .stack .enc {
+    max-height: 0;
+    overflow: hidden;
+    animation: grow-enc 1.3s steps(20, end) 1.1s forwards;
+  }
 
   .cursor {
     animation: blink 1s steps(1) infinite;
   }
 }
 
+@keyframes line {
+  to { max-height: 4em; margin-top: 0.35rem; }
+}
+
+@keyframes grow {
+  to { max-height: 40lh; }
+}
+
+@keyframes grow-sig {
+  to { max-height: 12lh; }
+}
+
+@keyframes grow-enc {
+  to { max-height: 20lh; }
+}
+
 @keyframes type {
-  to { width: 31ch; }
+  to { width: 29ch; }
 }
 
-@keyframes appear {
-  to { opacity: 1; }
-}
-
-@keyframes print {
-  to { clip-path: inset(0 0 0 0); }
+@keyframes type-enc {
+  to { width: 28ch; }
 }
 
 @keyframes blink {
@@ -448,17 +648,35 @@ img {
   text-transform: uppercase;
   transform: rotate(-6deg);
   opacity: 0.9;
+  /* worn rubber-stamp ink: a noise mask knocks small gaps out of the border and letters */
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='60'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.2 1.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='60'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.2 1.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  /* a rubber stamp, not a pop-up: held above the page (big, tilted, soft), slammed down,
+     a little squash on impact, then it settles. The card takes a tiny knock as it lands. */
   .stamp {
-    animation: stamp 0.4s cubic-bezier(0.2, 1.6, 0.4, 1);
+    animation: stamp 0.55s cubic-bezier(0.55, 0, 0.75, 0.4) 0.35s both;
+  }
+
+  .home .doc {
+    animation: thud 0.25s ease-out 0.62s;
   }
 }
 
 @keyframes stamp {
-  from { transform: rotate(-6deg) scale(2.2); opacity: 0; }
-  to   { transform: rotate(-6deg) scale(1);   opacity: 0.9; }
+  0%   { transform: rotate(-14deg) scale(2.4); opacity: 0; filter: blur(3px); }
+  45%  { opacity: 0.35; filter: blur(1.5px); }
+  60%  { transform: rotate(-5deg) scale(0.94); opacity: 1; filter: blur(0); }
+  72%  { transform: rotate(-6.5deg) scale(1.04); }
+  84%  { transform: rotate(-5.8deg) scale(0.99); }
+  100% { transform: rotate(-6deg) scale(1); opacity: 0.9; }
+}
+
+@keyframes thud {
+  30% { transform: translateY(1.5px); }
+  100% { transform: none; }
 }
 
 /* key/value list, like fields in a certificate */
@@ -508,7 +726,15 @@ img {
   font-weight: 700;
 }
 
-/* keyboard shortcuts (bear/keys.js); none of this shows without JS */
+/* keyboard shortcuts (static/keys.js); none of this shows without JS */
+
+/* no keyboard on touch screens: hide the shortcut badges there */
+@media (pointer: coarse) {
+  nav kbd,
+  .keys-hint {
+    display: none;
+  }
+}
 
 kbd {
   display: inline-block;
@@ -595,13 +821,10 @@ body > footer {
     font-size: 1.75rem;
   }
 
+  /* phones: keep the two certificate columns, just tighter */
   .cert {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-
-  .cert dd {
-    margin-bottom: 0.6rem;
+    gap: 0.15rem 0.75rem;
+    font-size: 0.82rem;
   }
 
   .blog-posts li {

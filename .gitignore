@@ -3,6 +3,10 @@
 .vscode/
 .idea/
 
+# generated: the signed bio and its signature (CI signs on deploy)
+static/bio.txt
+static/bio.txt.sig
+
 # zola build output and downloaded binary
 public/
 .bin/

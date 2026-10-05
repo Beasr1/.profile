@@ -18,6 +18,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Re-encode the bio from the page, sign it with the site key (a repo secret), and verify
+      # the result before anything is built. The key only ever exists in this runner's temp dir.
+      - name: Sign the bio
+        env:
+          SITE_SIGNING_KEY: ${{ secrets.SITE_SIGNING_KEY }}
+        run: |
+          python3 scripts/sign.py --encode
+          key="$RUNNER_TEMP/site_signing_key"
+          (umask 077 && printf '%s\n' "$SITE_SIGNING_KEY" > "$key")
+          ssh-keygen -Y sign -f "$key" -n file static/bio.txt
+          rm -f "$key"
+          python3 scripts/sign.py --check
+
       - name: Build with zola
         run: make build
 

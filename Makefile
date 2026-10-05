@@ -14,7 +14,7 @@ else
 endif
 ZOLA_URL=https://github.com/getzola/zola/releases/download/v$(ZOLA_VERSION)/zola-v$(ZOLA_VERSION)-$(ZOLA_TARGET).tar.gz
 
-.PHONY: serve drafts build sign clean help
+.PHONY: serve drafts build encode clean help
 
 # Live-reloading preview at http://127.0.0.1:$(PORT)
 serve: $(ZOLA)
@@ -28,9 +28,10 @@ drafts: $(ZOLA)
 build: $(ZOLA)
 	$(ZOLA) build
 
-# Re-generate the signature (base64, checksum, hash) after editing the decoded intro
-sign:
-	python3 scripts/sign.py
+# After editing the bio: regenerate the base64 block, hashes and static/bio.txt for local preview.
+# Signing happens in CI with the site key (see .github/workflows/deploy.yml).
+encode:
+	python3 scripts/sign.py --encode
 
 clean:
 	rm -rf public/
@@ -47,5 +48,5 @@ help:
 	@echo "  serve   - preview at http://127.0.0.1:$(PORT) with live reload (PORT=xxxx to change)"
 	@echo "  drafts  - same, including draft posts"
 	@echo "  build   - build the site into public/"
-	@echo "  sign    - re-sign the home page after editing the decoded intro"
+	@echo "  encode  - after editing the bio: regenerate the base64 block, hashes and bio.txt"
 	@echo "  clean   - remove public/"
