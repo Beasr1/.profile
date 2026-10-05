@@ -1,0 +1,11 @@
+# os / editor
+.DS_Store
+.vscode/
+.idea/
+
+# zola build output and downloaded binary
+public/
+.bin/
+
+# private Claude notes (CLAUDE.md itself is committed)
+CLAUDE.local.md

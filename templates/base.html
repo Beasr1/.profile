@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="{{ config.default_language }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ config.title }}{% endblock title %}</title>
+  <meta name="description" content="{% block description %}{{ config.description }}{% endblock description %}">
+  <link rel="icon" type="image/png" sizes="64x64" href="{{ get_url(path='favicon.png', cachebust=true) }}">
+  <link rel="apple-touch-icon" href="{{ get_url(path='apple-touch-icon.png') }}">
+  <link rel="stylesheet" href="{{ get_url(path='style.css', cachebust=true) }}">
+  <script defer src="{{ get_url(path='keys.js', cachebust=true) }}"></script>
+</head>
+<body class="{% block body_class %}page{% endblock body_class %}">
+  <header>
+    <a class="title" href="{{ config.base_url }}/" data-key="h" data-label="home"><h1>{{ config.title }}</h1></a>
+    <nav>
+      <a href="{{ get_url(path='@/blog/_index.md') }}" data-key="b">blog</a>
+      <a href="{{ config.extra.github }}" data-key="g">github</a>
+    </nav>
+  </header>
+  <main>
+    {% block content %}{% endblock content %}
+  </main>
+  {% block footer %}
+  <footer>
+    <p>powered by <a href="https://www.getzola.org">zola</a></p>
+  </footer>
+  {% endblock footer %}
+</body>
+</html>

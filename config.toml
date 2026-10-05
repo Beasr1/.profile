@@ -1,0 +1,15 @@
+# GitHub Pages project URL. Change this when you move to your own domain.
+base_url = "https://beasr1.github.io/basic-ass-site"
+
+title = "ishaan dubey"
+description = "Ishaan Dubey, software engineer working on identity verification and e-signing."
+default_language = "en"
+
+compile_sass = false
+build_search_index = false
+
+# no feeds: posts live on the site only
+generate_feeds = false
+
+[extra]
+github = "https://github.com/Beasr1"

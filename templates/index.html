@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block body_class %}home{% endblock body_class %}
+
+{% block content %}
+<div class="doc">
+<div class="hello">
+<h1>Hi, I'm Ishaan</h1>
+<span class="stamp">✓ verified</span>
+</div>
+<p>eSign lead at <a href="https://eurusys.com">eurusys</a> - identity verification for digital ID &amp; KYC</p>
+<p>smart cards, biometrics, document signing, and the pipelines behind them</p>
+<p class="dim">long version's in the signature ↓</p>
+<!-- LOCKED: certificate details. do not change without asking Ishaan. -->
+<h2>Certificate details</h2>
+<dl class="cert">
+<dt>subject</dt>
+<dd>CN=Ishaan Dubey</dd>
+<dt>issuer</dt>
+<dd>self-signed <span class="dim">(mitosis)</span></dd>
+<dt>organization</dt>
+<dd>Eurusys <span class="dim">(prev. Signzy)</span></dd>
+<dt>key usage</dt>
+<dd>digitalSignature, eSigning, debuggingProdAt2am</dd>
+<dt>languages</dt>
+<dd>go, rust, node <span class="dim">(and yaml, unwillingly)</span></dd>
+<dt>liveness check</dt>
+<dd>passed <span class="dim">(despite looking dead in the selfie)</span></dd>
+<dt>face match</dt>
+<dd>0.97 <span class="dim">(lighting was bad)</span></dd>
+<dt>risk profile</dt>
+<dd>low risk, high uptime</dd>
+<dt>valid until</dt>
+<dd>the next prod incident</dd>
+<dt>status</dt>
+<dd><span class="ok">VALID</span> <span class="dim">· not revoked, checked via OCSP just now</span></dd>
+</dl>
+<!-- /LOCKED -->
+<blockquote>
+<p>"Trust, but verify."</p>
+<p class="cite">— a russian proverb, borrowed by reagan, adopted by every KYC team since.</p>
+</blockquote>
+<div class="signature">
+<p class="armor" aria-hidden="true">-----BEGIN SIGNATURE-----<br>SSBidWlsZCB0aGUgc3lzdGVtcyB0aGF0IHByb3ZlIHlvdSBhcmUgd2hvIHlvdSBz<br>YXkgeW91IGFyZSAoYW5kIGNhdGNoIHRoZSBvbmVzIHdobyBhcmVuJ3QpLiBTb2Z0<br>d2FyZSBlbmdpbmVlciBhdCBFdXJ1c3lzLCBvbiB0aGUgaWRlbnRpdHktdmVyaWZp<br>Y2F0aW9uIHBsYXRmb3JtIGJlaGluZCBkaWdpdGFsIElEIGFuZCBLWUMgc2Vydmlj<br>ZXMsIHdoZXJlIEkgbGVhZCBlU2lnbi4gRGF5IHRvIGRheSB0aGF0J3MgR28sIFJ1<br>c3QgYW5kIE5vZGU6IHRhbGtpbmcgdG8gc21hcnQgY2FyZHMsIG1hdGNoaW5nIGZp<br>bmdlcnByaW50cyBhbmQgZmFjZXMsIGtlZXBpbmcgYSBmYWNlLWVtYmVkZGluZyBy<br>ZWdpc3RyeSBob25lc3QsIGFuZCBtYWtpbmcgc3VyZSBhIHNpZ25lZCBkb2N1bWVu<br>dCBpcyByZWFsbHkgc2lnbmVkIGJ5IHRoZSByaWdodCBwZXJzb24uIEkgd29yayBh<br>Y3Jvc3MgdGhlIHdob2xlIHN0YWNrLCBmcm9tIHRoZSBTREtzIGNsaWVudHMgaW50<br>ZWdyYXRlIHdpdGggdG8gdGhlIGJhY2tlbmQgc2VydmljZXMgYW5kIGRhdGEgcGlw<br>ZWxpbmVzIGJlaGluZCB0aGVtLiBBIGZldyBvZiB0aG9zZSBJJ3ZlIHRha2VuIGZy<br>b20gdGhlIGZpcnN0IGNvbW1pdCBhbGwgdGhlIHdheSB0byByZWxlYXNlLiBQcmV2<br>aW91c2x5IGF0IFNpZ256eSwgb24gYW4gb3JjaGVzdHJhdGlvbiBwbGF0Zm9ybSBh<br>bmQgYmFuayBvbmJvYXJkaW5nIGludGVncmF0aW9ucy4=<br>=zH4O<br>-----END SIGNATURE-----</p>
+<details class="decode" id="decode">
+<summary><span class="closed">decode signature</span><span class="opened">re-encode</span></summary>
+<div class="term">
+<p class="term-bar"><span class="dots">● ● ●</span> ishaan@cert: ~</p>
+<p class="cmd">$ echo "$SIGNATURE" | base64 -d</p>
+<p class="log l1">[*] checksum =zH4O ........ <span class="ok">ok</span></p>
+<p class="log l2">[*] decoding 704 bytes ..... <span class="ok">ok</span></p>
+<p class="log l3">[*] sha256 da97aecb…be60e738 .. <span class="ok">ok</span></p>
+<p class="log l4">[+] plaintext:</p>
+<div class="out">
+<p>I build the systems that prove you are who you say you are (and catch the ones who aren't). Software engineer at <a href="https://eurusys.com">Eurusys</a>, on the identity-verification platform behind digital ID and KYC services, where I lead eSign.</p>
+<p>Day to day that's Go, Rust and Node: talking to smart cards, matching fingerprints and faces, keeping a face-embedding registry honest, and making sure a signed document is really signed by the right person.</p>
+<p>I work across the whole stack, from the SDKs clients integrate with to the backend services and data pipelines behind them. A few of those I've taken from the first commit all the way to release.</p>
+<p>Previously at <a href="https://signzy.com">Signzy</a>, on an orchestration platform and bank onboarding integrations.</p>
+</div>
+<p class="prompt">$ <span class="cursor"></span></p>
+</div>
+</details>
+</div>
+<p class="armor-strip" aria-hidden="true"><span>-----BEGIN SIGNED MESSAGE-----</span><span>sha256 da97aecb…be60e738</span></p>
+</div>
+<div class="verify">
+<p><span class="ok">✓ Good signature</span> from "Ishaan Dubey"</p>
+<p class="warn">WARNING: This key is not certified with a trusted signature! <span class="dim">(working on it)</span></p>
+<p>powered by <a href="https://www.getzola.org">zola</a></p>
+</div>
+{% endblock content %}
+
+{# the home page has its own gpg-style footer inside the content #}
+{% block footer %}{% endblock footer %}
